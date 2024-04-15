@@ -1,0 +1,19 @@
+{
+  "typeAcquisition": {
+    "include": [
+      "jest"
+    ]
+  },
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "declaration": true,
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["es6", "dom"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
