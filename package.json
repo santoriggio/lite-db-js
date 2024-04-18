@@ -1,17 +1,21 @@
 {
-  "name": "local-db-js",
-  "version": "1.0.0",
-  "description": "",
+  "name": "lite-db-js",
+  "version": "1.0.1",
+  "description": "Local database for javascript's projects",
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --verbose"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/santoriggio/local-db-js.git"
+    "url": "https://github.com/santoriggio/lite-db-js.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "database",
+    "javascript",
+    "local"
+  ],
+  "author": "Santo Riggio",
   "license": "MIT",
   "devDependencies": {
     "@babel/preset-env": "^7.24.4",
