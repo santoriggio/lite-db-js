@@ -1,8 +1,9 @@
 {
   "name": "lite-db-js",
-  "version": "1.0.1",
+  "version": "1.0.9",
   "description": "Local database for javascript's projects",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest --watchAll --verbose"
   },

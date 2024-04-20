@@ -5,7 +5,7 @@
  * @return string
  */
 
-export default function generateUID(length: number = 20): string {
+export default function generateUID(length = 20) {
   try {
     let result = "";
 

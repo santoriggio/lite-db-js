@@ -77,5 +77,11 @@ describe.only("edge case", () => {
     for (let i = 0; i < length; i++) {
       collection.add({ id: i === 58472 ? fixedId : generateUID(), title: generateUID() });
     }
+
+    const doc = db.doc<Test>(`large/${fixedId}`);
+
+    if (doc.exists) {
+      doc.data.id
+    }
   });
 });

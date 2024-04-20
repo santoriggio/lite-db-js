@@ -1,11 +1,11 @@
 import generateUID from "./generateUID";
 
-class DB {
+export default class DB {
   private _db = new DBInstance();
 
   constructor() {}
 
-  collection<T extends Record<string, any>>(path: string): Collection<T> {
+  collection<T extends DocumentData>(path: string): Collection<T> {
     if (typeof this._db.collections[path] !== "undefined") {
       return this._db.collections[path];
     }
@@ -15,7 +15,7 @@ class DB {
     return newCollection;
   }
 
-  doc<T>(id: string): Document<T> {
+  doc<T extends DocumentData>(id: string): Document<T> {
     const splitted = id
       .split("/")
       .filter((str) => str.trim() !== "" && typeof str !== "undefined" && str !== null);
@@ -23,16 +23,20 @@ class DB {
     const docId = splitted.pop();
 
     if (splitted.length === 0) {
-      throw Error("Collezione non valida");
+      throw Error("Collezione non valida: " + id);
     }
 
     const collectionId = splitted.join("/");
 
     if (typeof this._db.collections[collectionId] === "undefined") {
-      throw Error("Collezione non trovata");
+      this.collection<T>(collectionId);
     }
 
     return this._db.collections[collectionId].doc<T>(docId);
+  }
+
+  clear() {
+    this._db = new DBInstance();
   }
 }
 
@@ -54,26 +58,35 @@ class DBInstance {
   addListener(query: Listener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
 
+    const remove = () => {
+      this.listeners.filter((listener) => listener.id !== uniqueId);
+    };
+
     this.listeners.push({
       id: uniqueId,
       func: callback,
       query,
-      _remove: () => {
-        this.listeners.filter((listener) => listener.id !== uniqueId);
-      },
+      remove,
     });
+
+    return remove;
   }
 
   addDocListener(query: DocListener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
+
+    const remove = () => {
+      this.docListeners.filter((listener) => listener.id !== uniqueId);
+    };
+
     this.docListeners.push({
       id: uniqueId,
       func: callback,
       query,
-      _remove: () => {
-        this.docListeners.filter((listener) => listener.id !== uniqueId);
-      },
+      remove,
     });
+
+    return remove;
   }
 
   onAdd(a: Document<any> | Document<any>[]) {
@@ -93,10 +106,22 @@ class DBInstance {
         let isValid = true;
 
         filters.forEach((filter) => {
-          if (typeof doc.data[filter.key] === "undefined") isValid = false;
+          if (typeof filter === "undefined") {
+            return;
+          }
+
+          if (typeof doc.data === "undefined") {
+            return (isValid = false);
+          }
+
+          if (typeof doc.data[filter.key] === "undefined") {
+            return (isValid = false);
+          }
 
           if (filter.operator === "==") {
-            if (doc.data[filter.key] != filter.value) isValid = false;
+            if (doc.data[filter.key] != filter.value) {
+              return (isValid = false);
+            }
           }
         });
 
@@ -121,12 +146,30 @@ class DBInstance {
       let isValid = [true, true];
 
       filters.forEach((filter) => {
-        if (typeof prev[filter.key] === "undefined") isValid[0] = false;
-        if (typeof current.data[filter.key] === "undefined") isValid[1] = false;
+        if (typeof filter === "undefined") return;
 
-        if (filter.operator === "==") {
-          if (prev[filter.key] != filter.value) isValid[0] = false;
-          if (current.data[filter.key] != filter.value) isValid[1] = false;
+        if (typeof prev === "undefined") {
+          isValid[0] = false;
+        } else {
+          if (typeof prev[filter.key] === "undefined") {
+            isValid[0] = false;
+          } else {
+            if (filter.operator === "==") {
+              if (prev[filter.key] != filter.value) isValid[0] = false;
+            }
+          }
+        }
+
+        if (typeof current.data === "undefined") {
+          isValid[1] = false;
+        } else {
+          if (typeof current.data[filter.key] === "undefined") {
+            isValid[1] = false;
+          } else {
+            if (filter.operator === "==") {
+              if (current.data[filter.key] != filter.value) isValid[1] = false;
+            }
+          }
         }
       });
 
@@ -159,10 +202,22 @@ class DBInstance {
         let isValid = true;
 
         filters.forEach((filter) => {
-          if (typeof doc.data[filter.key] === "undefined") isValid = false;
+          if (typeof filter === "undefined") {
+            return;
+          }
+
+          if (typeof doc.data === "undefined") {
+            return (isValid = false);
+          }
+
+          if (typeof doc.data[filter.key] === "undefined") {
+            return (isValid = false);
+          }
 
           if (filter.operator === "==") {
-            if (doc.data[filter.key] != filter.value) isValid = false;
+            if (doc.data[filter.key] != filter.value) {
+              return (isValid = false);
+            }
           }
         });
 
@@ -190,16 +245,10 @@ class DBInstance {
 class Query<T> {
   private _db: DBInstance;
   private _filters: any[] = [];
-  private _listeners: Listener<Query<T>>[] = [];
 
-  constructor(
-    db: DBInstance,
-    private path: string,
-    filters: any[] = [],
-    listeners: Listener<Query<T>>[] = []
-  ) {
+  constructor(db: DBInstance, private path: string, filters: any[] = []) {
     this._filters = [...this._filters, ...filters];
-    this._listeners = [...this._listeners, ...listeners];
+
     this._db = db;
   }
 
@@ -227,12 +276,22 @@ class Query<T> {
         let valid = true;
 
         this._filters.forEach((filter) => {
-          const key = doc.data[filter.key];
+          if (typeof filter === "undefined") {
+            return;
+          }
 
-          if (typeof key === "undefined") valid = false;
+          if (typeof doc.data === "undefined") {
+            return (valid = false);
+          }
+
+          if (typeof doc.data[filter.key] === "undefined") {
+            return (valid = false);
+          }
 
           if (filter.operator === "==") {
-            if (key != filter.value) valid = false;
+            if (doc.data[filter.key] != filter.value) {
+              return (valid = false);
+            }
           }
         });
 
@@ -246,18 +305,13 @@ class Query<T> {
   }
 
   where(key: string, operator: "==", value: any) {
-    return new Query<T>(
-      this._db,
-      this.path,
-      [...this._filters, { key, operator, value }],
-      this._listeners
-    );
+    return new Query<T>(this._db, this.path, [...this._filters, { key, operator, value }]);
   }
 
   on(callback: (snapshot: Query<T>) => void) {
     callback(this);
 
-    this._db.addListener(this, callback);
+    return this._db.addListener(this, callback);
   }
 }
 
@@ -372,12 +426,15 @@ class Collection<T extends DocumentData = DocumentData> extends Query<T> {
   // }
 }
 
+function isDefined<T>(value: T | undefined | null): value is T {
+  return value !== undefined && value !== null;
+}
+
 class Document<T extends DocumentData> {
   private _id: string;
   private _path: string;
   private _data: T;
   private _db: DBInstance;
-  private _exists: boolean = true;
 
   constructor(db: DBInstance, id: string, collection: string, data?: T) {
     this._id = id;
@@ -387,10 +444,6 @@ class Document<T extends DocumentData> {
   }
 
   set(data: T) {
-    if (this._exists === false) {
-      throw Error("This document don't exists");
-    }
-
     const prev = this._data;
 
     this._data = data;
@@ -398,10 +451,6 @@ class Document<T extends DocumentData> {
   }
 
   update(data: Partial<T>) {
-    if (this._exists === false) {
-      throw Error("This document don't exists");
-    }
-
     const prev = this._data;
 
     this._data = {
@@ -413,7 +462,7 @@ class Document<T extends DocumentData> {
   }
 
   delete() {
-    this._exists = false;
+    this._data = undefined;
 
     this._db.collections[this._path].deleteDoc(this);
   }
@@ -421,15 +470,21 @@ class Document<T extends DocumentData> {
   on(callback: (snapshot: Document<T>) => void) {
     callback(this);
 
-    this._db.addDocListener(this, callback);
+    return this._db.addDocListener(this, callback);
   }
 
   get exists() {
-    return this._exists;
+    if (typeof this._data === "undefined") return false;
+    if (typeof this._data === "object" && Object.keys(this._data).length === 0) return false;
+    if (this._data === null) return false;
+
+    return true;
   }
-  get data() {
-    return this._data;
+
+  get data(): T {
+    return this.exists ? this._data : undefined;
   }
+
   get id() {
     return this._id;
   }
@@ -437,8 +492,6 @@ class Document<T extends DocumentData> {
     return this._path;
   }
 }
-
-export default DB;
 
 type DocumentData = {
   [key: string]: any;
@@ -448,12 +501,12 @@ type Listener<T> = {
   id: string;
   query: Query<T>;
   func: (snapshot: T) => void;
-  _remove: () => void;
+  remove: () => void;
 };
 
-type DocListener<T> = {
+type DocListener<T extends DocumentData> = {
   id: string;
   query: Document<T>;
   func: (snapshot: T) => void;
-  _remove: () => void;
+  remove: () => void;
 };
