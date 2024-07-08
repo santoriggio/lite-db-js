@@ -33,39 +33,6 @@
     "ts-jest": "^29.1.2",
     "typescript": "^5.4.5"
   },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "ecmaVersion": 2020,
-      "sourceType": "module"
-    },
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "google",
-      "plugin:prettier/recommended"
-    ],
-    "rules": {
-      "quotes": [
-        "error",
-        "single"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ],
-      "indent": [
-        "error",
-        2
-      ],
-      "linebreak-style": [
-        "error",
-        "unix"
-      ],
-      "@typescript-eslint/no-explicit-any": "off",
-      "prettier/prettier": "error"
-    }
-  },
   "prettier": {
     "singleQuote": true,
     "semi": true,
