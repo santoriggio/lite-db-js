@@ -1,8 +1,6 @@
 {
   "typeAcquisition": {
-    "include": [
-      "jest"
-    ]
+    "include": ["jest"]
   },
   "compilerOptions": {
     "moduleResolution": "node",
@@ -12,7 +10,7 @@
     "lib": ["es6", "dom"],
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": false
+    "strict": true
   },
   "include": ["src/**/*.ts", "src/generateUID.ts", "src/index.ts"],
   "exclude": ["node_modules"]
