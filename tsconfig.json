@@ -1,17 +1,34 @@
 {
-  "typeAcquisition": {
-    "include": ["jest"]
-  },
   "compilerOptions": {
-    "moduleResolution": "node",
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020"],
+    "allowJs": false,
+    "checkJs": false,
     "declaration": true,
-    "module": "commonjs",
-    "target": "es5",
-    "lib": ["es6", "dom"],
+    "declarationMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true
+    "removeComments": false,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noEmitOnError": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "incremental": true
   },
-  "include": ["src/**/*.ts", "src/generateUID.ts", "src/index.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "build"]
 }
