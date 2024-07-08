@@ -6,7 +6,7 @@ pre-commit:
       run: yarn eslint {staged_files}
     typecheck:
       glob: "*.{ts,tsx}"
-      run: tsc {staged_files} --noEmit
+      run: yarn tsc {staged_files} --noEmit
 
 commit-msg:
   commmands:
