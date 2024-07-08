@@ -4,20 +4,21 @@
  * @returns {string} Unique Id
  */
 export default function generateUID(length: number = 20): string {
+  // aaa
   try {
     let result = "";
 
     if (
-      typeof length !== "number"
-      || length == null
-      || length < 1
-      || length > 100
+      typeof length !== "number" ||
+      length == null ||
+      length < 1 ||
+      length > 100
     ) {
       length = 20;
     }
 
-    const characters
-      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
 
     for (let i = 0; i < length; i++) {
