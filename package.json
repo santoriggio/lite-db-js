@@ -21,10 +21,10 @@
   "author": "Santo Riggio",
   "license": "MIT",
   "devDependencies": {
-    "@arkweid/lefthook": "^0.7.7",
     "@babel/preset-env": "^7.24.4",
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
+    "@evilmartians/lefthook": "^1.7.0",
     "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
