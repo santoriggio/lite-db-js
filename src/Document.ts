@@ -1,5 +1,5 @@
-import { DBInstance } from "./DB";
 import { DocumentData, Document } from "./types";
+import { DBInstance } from "./DB";
 
 /**
  * @template T
@@ -61,7 +61,8 @@ export default class DocumentReference<T extends DocumentData> implements Docume
   delete() {
     this.documentData = undefined;
 
-    this.db.collections[this.uniquePath].deleteDoc(this);
+    const collectionId = this.uniquePath.split("/").slice(0, -1).join("/");
+    this.db.collections[collectionId].deleteDoc(this);
   }
 
   /**
