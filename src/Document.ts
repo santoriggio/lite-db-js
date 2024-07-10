@@ -1,105 +1,111 @@
 import { DBInstance } from "./DB";
-import { DocumentData } from "./types";
+import { DocumentData, Document } from "./types";
 
-export default class Document<T extends DocumentData> {
-  private _id: string;
-  private _path: string;
-  private _data: T;
-  private _db: DBInstance;
+/**
+ * @template T
+ * @implements {Document<T>}
+ */
+export default class DocumentReference<T extends DocumentData> implements Document<T> {
+  private uniqueId: string;
+  private uniquePath: string;
+  private documentData: T | undefined;
 
   /**
-   *
-   * @param db
-   * @param id
-   * @param collection
-   * @param data
+   * @param {DBInstance} db Database Instance
+   * @param {string} id document Id
+   * @param {string} collection Collection path
+   * @param {T} data Document initial Data
    */
-  constructor(db: DBInstance, id: string, collection: string, data?: T) {
-    this._id = id;
-    this._data = data;
-    this._path = collection;
-    this._db = db;
+  constructor(
+    private db: DBInstance,
+    id: string,
+    collection: string,
+    data?: T,
+  ) {
+    this.uniqueId = id;
+    this.uniquePath = `${collection}/${id}`;
+    this.documentData = data;
   }
 
   /**
-   *
-   * @param data
+   * Set new document data
+   * @param {T} data Document data
    */
   set(data: T) {
-    const prev = this._data;
+    const prev = this.documentData;
 
-    this._data = data;
-    this._db.onEdit(prev, this);
+    this.documentData = data;
+    this.db.onEdit(prev, this);
   }
 
   /**
-   *
-   * @param data
+   * Update existing document data with merge
+   * @param {Partial<T>} data Document updated data
    */
   update(data: Partial<T>) {
-    const prev = this._data;
+    const prev = this.documentData;
 
-    this._data = {
-      ...this._data,
-      ...data,
-    };
+    if (typeof this.documentData !== "undefined") {
+      this.documentData = {
+        ...this.documentData,
+        ...data,
+      };
 
-    this._db.onEdit(prev, this);
+      this.db.onEdit(prev, this);
+    }
   }
 
   /**
-   *
+   * Delete document
    */
   delete() {
-    this._data = undefined;
+    this.documentData = undefined;
 
-    this._db.collections[this._path].deleteDoc(this);
+    this.db.collections[this.uniquePath].deleteDoc(this);
   }
 
   /**
-   *
-   * @param callback
+   * Add listener on change of the document
+   * @param {(snapshot: Document<T>)=> void} callback Function to be called on change document
+   * @returns {()=> void} remove function
    */
-  on(callback: (snapshot: Document<T>) => void) {
+  on(callback: (snapshot: Document<T>) => void): () => void {
     callback(this);
 
-    return this._db.addDocListener(this, callback);
+    return this.db.addDocListener(this, callback);
   }
 
   /**
-   *
+   * @returns {boolean} Return true is document is not empty
    */
-  get exists() {
-    if (typeof this._data === "undefined") return false;
-    if (
-      typeof this._data === "object" &&
-      Object.keys(this._data).length === 0
-    ) {
+  get exists(): boolean {
+    if (typeof this.documentData === "undefined") return false;
+    if (typeof this.documentData === "object" && Object.keys(this.documentData).length === 0) {
       return false;
     }
-    if (this._data === null) return false;
+    if (this.documentData === null) return false;
 
     return true;
   }
 
   /**
-   *
+   * @returns {T} Return T if document.esists === true
    */
-  get data(): T {
-    return this.exists ? this._data : undefined;
+  get data(): T | null {
+    return this.exists ? (this.documentData as T) : null;
   }
 
   /**
-   *
+   * @returns {string} id
    */
-  get id() {
-    return this._id;
+  get id(): string {
+    return this.uniqueId;
   }
 
   /**
-   *
+   * @returns {string} Document Path
    */
-  get path() {
-    return this._path;
+  get path(): string {
+    return this.uniquePath;
   }
 }
