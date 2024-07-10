@@ -1,5 +1,3 @@
-import Document from "./Document";
-
 export type DocumentData = {
   [key: string]: any;
 };
@@ -17,3 +15,13 @@ export type DocListener<T extends DocumentData> = {
   func: (snapshot: T) => void;
   remove: () => void;
 };
+
+export interface Collection<T extends DocumentData> {
+
+}
+export interface Document<T extends DocumentData> {
+  set(data: T): void;
+  update(data: Partial<T>): void;
+  delete(): void;
+  on(snapshot: () => void): void;
+}

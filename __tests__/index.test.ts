@@ -1,4 +1,4 @@
-import DB from "../src";
+import { DB } from "../src";
 
 const db = new DB();
 type ListItem = {
@@ -45,15 +45,13 @@ describe("basic cases", () => {
   });
   it("Remove 'List Item 7'", () => {
     const list = collection.where("title", "==", "List Item 7");
-    if (list.empty === false) {
-      const doc = list.docs[0];
+    const doc = list.docs[0];
 
-      expect(doc.exists).toBeTruthy();
-      doc.delete();
-      expect(doc.exists).toBeFalsy();
+    expect(doc.exists).toBeTruthy();
+    doc.delete();
+    expect(doc.exists).toBeFalsy();
 
-      //Check if count is decreased
-      expect(collection.count).toEqual(10);
-    }
+    //Check if count is decreased
+    expect(collection.count).toEqual(10);
   });
 });
