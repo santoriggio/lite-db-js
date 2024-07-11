@@ -1,6 +1,10 @@
 import { DBInstance } from "./DB";
 import Document from "./Document";
 
+/**
+ *
+ *
+ */
 export default class Query<T> {
   private _db: DBInstance;
   private _filters: any[] = [];
@@ -46,7 +50,6 @@ export default class Query<T> {
    *
    */
   get docs(): Document<T>[] {
-
     const array = [];
     const docs = this._db.collections[this.path].docs;
 
@@ -92,10 +95,7 @@ export default class Query<T> {
    * @param value
    */
   where(key: string, operator: "==", value: any) {
-    return new Query<T>(this._db, this.path, [
-      ...this._filters,
-      { key, operator, value },
-    ]);
+    return new Query<T>(this._db, this.path, [...this._filters, { key, operator, value }]);
   }
 
   /**
