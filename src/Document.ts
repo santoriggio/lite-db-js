@@ -59,9 +59,12 @@ export default class DocumentReference<T extends DocumentData> implements Docume
    * Delete document
    */
   delete() {
-    this.documentData = undefined;
+    const collectionPath = this.uniquePath.split("/").slice(0, -1).join("/");
 
-    this.db.collections[this.uniquePath].deleteDoc(this);
+    if (typeof this.db.collections[collectionPath] !== "undefined") {
+      this.documentData = undefined;
+      this.db.collections[collectionPath].deleteDoc(this);
+    }
   }
 
   /**
@@ -80,12 +83,8 @@ export default class DocumentReference<T extends DocumentData> implements Docume
    */
   get exists(): boolean {
     if (typeof this.documentData === "undefined") return false;
-    if (typeof this.documentData === "object" && Object.keys(this.documentData).length === 0) {
-      return false;
-    }
-    if (this.documentData === null) return false;
 
-    return true;
+    return this.db.docExists(this.uniquePath);
   }
 
   /**
