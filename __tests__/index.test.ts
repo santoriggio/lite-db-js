@@ -54,4 +54,10 @@ describe("basic cases", () => {
     //Check if count is decreased
     expect(collection.count).toEqual(10);
   });
+  it("check if document exists", () => {
+    const list = collection.docs;
+    const docSnapshot = list[0];
+
+    expect(docSnapshot.exists).toBeTruthy();
+  });
 });
