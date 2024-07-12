@@ -3,10 +3,10 @@ pre-push:
   commands:
     eslint:
       glob: "*.{js,ts,jsx,tsx}"
-      run: npx eslint {staged_files}
+      run: npx eslint {push_files}
     typecheck:
       glob: "*.{ts,tsx}"
-      run: npx tsc {staged_files} --noEmit
+      run: npx tsc {push_files} --noEmit
 commit-msg:
   parallel: true
   commands:
