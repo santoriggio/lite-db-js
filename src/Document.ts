@@ -53,6 +53,10 @@ export default class DocumentReference<T extends DocumentData> implements Docume
 
       this.db.onEdit(prev, this);
     }
+
+    if (typeof this.documentData === "undefined") {
+      this.set(data as T);
+    }
   }
 
   /**
@@ -62,7 +66,6 @@ export default class DocumentReference<T extends DocumentData> implements Docume
     const collectionPath = this.uniquePath.split("/").slice(0, -1).join("/");
 
     if (typeof this.db.collections[collectionPath] !== "undefined") {
-      this.documentData = undefined;
       this.db.collections[collectionPath].deleteDoc(this);
     }
   }
@@ -88,10 +91,10 @@ export default class DocumentReference<T extends DocumentData> implements Docume
   }
 
   /**
-   * @returns {T} Return T if document.esists === true
+   * @returns {T} Return T
    */
-  get data(): T | null {
-    return this.exists ? (this.documentData as T) : null;
+  get data(): T | undefined {
+    return this.documentData;
   }
 
   /**
