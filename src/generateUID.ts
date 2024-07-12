@@ -7,17 +7,11 @@ export default function generateUID(length: number = 20): string {
   try {
     let result = "";
 
-    if (
-      typeof length !== "number"
-      || length == null
-      || length < 1
-      || length > 100
-    ) {
+    if (typeof length !== "number" || length == null || length < 1 || length > 100) {
       length = 20;
     }
 
-    const characters
-      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
 
     for (let i = 0; i < length; i++) {
@@ -27,8 +21,6 @@ export default function generateUID(length: number = 20): string {
 
     return result;
   } catch (error) {
-    console.log(error);
-
     return "";
   }
 }
