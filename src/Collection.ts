@@ -9,20 +9,18 @@ import { DocumentData } from "./types";
  * @template T
  */
 export default class Collection<T extends DocumentData = DocumentData> extends Query<T> {
-  private _id: string;
-  private _hashmap: Record<string, Document<T>> = {};
-  private _docs: Document<T>[] = [];
+  private hashmap: Record<string, Document<T>> = {};
+  private documents: Document<T>[] = [];
 
   /**
    * @param {DBInstance} db Database
-   * @param {string} id Collection id
+   * @param {string} path Collection path
    */
   constructor(
     private db: DBInstance,
-    id: string,
+    path: string,
   ) {
-    super(db, id);
-    this._id = id;
+    super(db, path);
   }
 
   /**
@@ -30,14 +28,14 @@ export default class Collection<T extends DocumentData = DocumentData> extends Q
    * @returns {Document<T>} Document
    */
   doc<E extends T>(id: string): Document<E | T> {
-    if (this._hashmap[id]) {
-      return this._hashmap[id];
+    if (this.hashmap[id]) {
+      return this.hashmap[id];
     }
 
-    const document = new Document<T>(this.db, id, this._id);
+    const document = new Document<T>(this.db, id, this.path);
 
-    this._docs.push(document);
-    this._hashmap[id] = document;
+    this.documents.push(document);
+    this.hashmap[id] = document;
     this.db.onAdd(document);
 
     return document;
@@ -47,27 +45,20 @@ export default class Collection<T extends DocumentData = DocumentData> extends Q
    * @param {Document<T>} doc Document
    */
   deleteDoc(doc: Document<T>) {
-    if (typeof this._hashmap[doc.id] !== "undefined") {
-      delete this._hashmap[doc.id];
+    if (typeof this.hashmap[doc.id] !== "undefined") {
+      delete this.hashmap[doc.id];
 
-      this._docs = this._docs.filter((item) => item.id !== doc.id);
+      this.documents = this.documents.filter((item) => item.id !== doc.id);
 
       this.db.onDelete(doc);
     }
   }
 
   /**
-   * @returns {string} Id
-   */
-  get id(): string {
-    return this._id;
-  }
-
-  /**
    * @returns {Document<T>[]} Docs list
    */
   get docs(): Document<T>[] {
-    return this._docs;
+    return this.documents;
   }
 
   /**
@@ -75,20 +66,20 @@ export default class Collection<T extends DocumentData = DocumentData> extends Q
    * @param {T | T[]} data Data
    */
   add(data: T | T[]) {
-    const documents = this._docs;
+    const documents = this.documents;
     if (Array.isArray(data)) {
       const added: Document<T>[] = [];
 
       data.forEach((item) => {
         const uniqueId = item.id || generateUID();
 
-        if (typeof this._hashmap[uniqueId] !== "undefined") {
-          this._hashmap[uniqueId].update(item);
+        if (typeof this.hashmap[uniqueId] !== "undefined") {
+          this.hashmap[uniqueId].update(item);
         } else {
-          const document = new Document<T>(this.db, uniqueId, this._id, item);
+          const document = new Document<T>(this.db, uniqueId, this.path, item);
 
           documents.push(document);
-          this._hashmap[uniqueId] = document;
+          this.hashmap[uniqueId] = document;
           added.push(document);
         }
       });
@@ -97,14 +88,22 @@ export default class Collection<T extends DocumentData = DocumentData> extends Q
     } else {
       const uniqueId = data.id || generateUID();
 
-      if (typeof this._hashmap[uniqueId] !== "undefined") {
-        this._hashmap[uniqueId].update(data);
+      if (typeof this.hashmap[uniqueId] !== "undefined") {
+        this.hashmap[uniqueId].update(data);
       } else {
-        const document = new Document<T>(this.db, uniqueId, this._id, data);
+        const document = new Document<T>(this.db, uniqueId, this.path, data);
         documents.push(document);
-        this._hashmap[uniqueId] = document;
+        this.hashmap[uniqueId] = document;
         this.db.onAdd(document);
       }
     }
+  }
+
+  /**
+   * Clear collection
+   */
+  clear(): void {
+    this.documents = [];
+    this.hashmap = {};
   }
 }
