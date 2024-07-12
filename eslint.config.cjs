@@ -1,7 +1,19 @@
 const tsParser = require("@typescript-eslint/parser");
 const jsdoc = require("eslint-plugin-jsdoc");
-
+const jest = require("eslint-plugin-jest");
 module.exports = [
+  {
+    files: ["__tests__/**/*.{test.ts,test.js}"],
+    languageOptions: {
+      parser: tsParser,
+    },
+    plugins: {
+      jest,
+    },
+    rules: {
+      ...jest.configs["flat/recommended"].rules,
+    },
+  },
   {
     files: ["src/**/*.{ts,js}"], // Includes all .ts and .js files in src directory and subdirectories
     languageOptions: {
@@ -36,10 +48,7 @@ module.exports = [
       eqeqeq: ["error", "always", { null: "ignore" }],
       "func-call-spacing": ["error", "never"],
       indent: ["error", 2, { SwitchCase: 1 }],
-      "key-spacing": [
-        "error",
-        { beforeColon: false, afterColon: true, mode: "strict" },
-      ],
+      "key-spacing": ["error", { beforeColon: false, afterColon: true, mode: "strict" }],
       "keyword-spacing": ["error", { before: true, after: true }],
       "linebreak-style": ["error", "unix"],
       "lines-around-comment": [
@@ -54,7 +63,7 @@ module.exports = [
       ],
       "multiline-comment-style": ["error", "starred-block"],
       "newline-before-return": "error",
-      "newline-per-chained-call": ["error", { ignoreChainWithDepth: 2 }],
+      //"newline-per-chained-call": ["error", { ignoreChainWithDepth: 2 }],
       "no-console": "warn",
       "no-else-return": "error",
       "no-multiple-empty-lines": ["error", { max: 1, maxEOF: 1 }],
@@ -62,10 +71,7 @@ module.exports = [
       "no-unneeded-ternary": "error",
       "object-curly-newline": ["error", { consistent: true }],
       "object-curly-spacing": ["error", "always"],
-      "object-property-newline": [
-        "error",
-        { allowAllPropertiesOnSameLine: true },
-      ],
+      "object-property-newline": ["error", { allowAllPropertiesOnSameLine: true }],
       "one-var": ["error", { initialized: "never" }],
       quotes: ["error", "double"],
       semi: ["error", "always"],
