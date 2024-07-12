@@ -63,7 +63,7 @@ export default class DB {
 export class DBInstance {
   collections: Record<string, Collection<any>> = {};
   listeners: Listener<any>[] = [];
-  docListeners: DocListener<any>[] = [];
+  docListeners: Listener<any>[] = [];
 
   addListener(query: Listener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
@@ -163,7 +163,7 @@ export class DBInstance {
    * @param prev
    * @param current
    */
-  onEdit(prev: DocumentData, current: Document<any>) {
+  onEdit(prev: DocumentData | undefined, current: Document<any>) {
     this.listeners.forEach((listener) => {
       const filters = listener.query.filters;
 
@@ -306,5 +306,5 @@ export class DBInstance {
    * Function to call on document write action, which comprends create, update and delete
    * @param {WriteEvent} e Event
    */
-  onWrite<T extends DocumentData>(e: WriteEvent<T>) { }
+  onWrite<T extends DocumentData>(e: WriteEvent<T>) {}
 }

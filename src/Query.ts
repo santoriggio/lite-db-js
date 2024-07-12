@@ -1,11 +1,12 @@
 import { DBInstance } from "./DB";
 import Document from "./Document";
+import { DocumentData } from "./types";
 
 /**
  *
  *
  */
-export default class Query<T> {
+export default class Query<T extends DocumentData> {
   private uniquePath: string;
   private _db: DBInstance;
   private _filters: any[] = [];
@@ -24,10 +25,10 @@ export default class Query<T> {
   }
 
   /**
-   *
+   * @returns {boolean} Returns true if query is empty
    */
-  get empty() {
-    return this._db.collections[this.uniquePath].docs.length === 0;
+  get empty(): boolean {
+    return this.docs.length === 0;
   }
 
   /**
@@ -48,8 +49,12 @@ export default class Query<T> {
    *
    */
   get docs(): Document<T>[] {
-    const array = [];
-    const docs = this._db.collections[this.path].docs;
+    const array: Document<T>[] = [];
+    const collection = this._db.collections[this.path];
+
+    if (typeof collection === "undefined") return [];
+
+    const docs = collection.docs;
 
     if (this.filters.length === 0) return docs;
 
@@ -75,6 +80,8 @@ export default class Query<T> {
               return (valid = false);
             }
           }
+
+          return;
         });
 
         if (valid) {
@@ -106,6 +113,9 @@ export default class Query<T> {
     return this._db.addListener(this, callback);
   }
 
+  /**
+   *
+   */
   get path() {
     return this.uniquePath;
   }
