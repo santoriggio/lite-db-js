@@ -80,4 +80,13 @@ describe("basic cases", () => {
     expect(typeof doc.path).toEqual("string");
     expect(doc.path).toEqual(expected);
   });
+  it(".on() should be called on first build", () => {
+    const uniqueId = generateUID();
+    const document = collection.doc(uniqueId);
+    const callback = jest.fn();
+
+    document.on(callback);
+
+    expect(callback).toHaveBeenCalled();
+  });
 });
