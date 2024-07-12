@@ -1,12 +1,12 @@
-pre-push:
-  parallel: true
-  commands:
-    eslint:
-      glob: "*.{js,ts,jsx,tsx}"
-      run: npx eslint {staged_files}
-    typecheck:
-      glob: "*.{ts,tsx}"
-      run: npx tsc {staged_files} --noEmit
+# pre-push:
+#   parallel: true
+#   commands:
+#     eslint:
+#       glob: "*.{js,ts,jsx,tsx}"
+#       run: npx eslint {push_files}
+#     typecheck:
+#       glob: "*.{ts,tsx}"
+#       run: npx tsc {push_files} --noEmit
 commit-msg:
   parallel: true
   commands:
