@@ -6,6 +6,7 @@ import Document from "./Document";
  *
  */
 export default class Query<T> {
+  private uniquePath: string;
   private _db: DBInstance;
   private _filters: any[] = [];
 
@@ -15,13 +16,10 @@ export default class Query<T> {
    * @param path
    * @param filters
    */
-  constructor(
-    db: DBInstance,
-    private path: string,
-    filters: any[] = [],
-  ) {
+  constructor(db: DBInstance, path: string, filters: any[] = []) {
     this._filters = [...this._filters, ...filters];
 
+    this.uniquePath = path;
     this._db = db;
   }
 
@@ -29,7 +27,7 @@ export default class Query<T> {
    *
    */
   get empty() {
-    return this._db.collections[this.path].docs.length === 0;
+    return this._db.collections[this.uniquePath].docs.length === 0;
   }
 
   /**
@@ -94,7 +92,7 @@ export default class Query<T> {
    * @param operator
    * @param value
    */
-  where(key: string, operator: "==", value: any) {
+  where(key: keyof T, operator: "==", value: any) {
     return new Query<T>(this._db, this.path, [...this._filters, { key, operator, value }]);
   }
 
@@ -106,5 +104,9 @@ export default class Query<T> {
     callback(this);
 
     return this._db.addListener(this, callback);
+  }
+
+  get path() {
+    return this.uniquePath;
   }
 }
