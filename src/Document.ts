@@ -1,11 +1,10 @@
 import { DBInstance } from "./DB";
-import { DocumentData, Document } from "./types";
+import { DocumentData } from "./types";
 
 /**
  * @template T
- * @implements {Document<T>}
  */
-export default class DocumentReference<T extends DocumentData> implements Document<T> {
+export default class Document<T extends DocumentData> {
   private uniqueId: string;
   private uniquePath: string;
   private documentData: T | undefined;
