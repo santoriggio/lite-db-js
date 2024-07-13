@@ -61,6 +61,10 @@ describe("basic cases", () => {
 
     expect(doc.exists).toBeTruthy();
 
+    let t: DocType;
+    if(doc.exists){
+      t = doc.data
+    }
     doc.delete();
     expect(doc.exists).toBeFalsy();
     expect(doc.data).toBeDefined();

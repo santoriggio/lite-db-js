@@ -1,6 +1,6 @@
 {
   "name": "lite-db-js",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Local database for javascript's projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "madge:circular": "yarn madge -c ./src",
     "prepare": "yarn typecheck && yarn lint && yarn test && yarn build",
     "build": "tsc && yarn minify",
-    "minify": "scripts/minify.js && scripts/update-types.js",
+    "minify": "scripts/minify.js",
     "release": "release-it"
   },
   "repository": {
