@@ -31,26 +31,21 @@ export default class DB {
    * @returns {Document<T>} Document Reference
    */
   doc<T extends DocumentData>(id: string): Document<T> {
-    const splitted = id
-      .split("/")
-      .filter(
-        (str) =>
-          str.trim() !== "" && typeof str !== "undefined" && str !== null,
-      );
+    const splitted = id.split("/").filter((str) => str.trim() !== "" && typeof str !== "undefined" && str !== null);
+
+    if (splitted.length === 0) {
+      throw Error("invalid_path: " + id);
+    }
 
     const docId = splitted.pop();
 
-    if (splitted.length === 0) {
-      throw Error("Collezione non valida: " + id);
+    if (typeof docId !== "string") {
+      throw Error("invalid_id: " + id);
     }
 
     const collectionId = splitted.join("/");
 
-    if (typeof this.db.collections[collectionId] === "undefined") {
-      this.collection<T>(collectionId);
-    }
-
-    return this.db.collections[collectionId].doc<T>(docId);
+    return this.collection<T>(collectionId).doc<T>(docId);
   }
 
   /**
@@ -70,10 +65,7 @@ export class DBInstance {
   listeners: Listener<any>[] = [];
   docListeners: Listener<any>[] = [];
 
-  addListener(
-    query: Listener<any>["query"],
-    callback: (snapshot: any) => void,
-  ) {
+  addListener(query: Listener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
 
     const remove = () => {
@@ -87,7 +79,10 @@ export class DBInstance {
       remove,
     });
 
-    return remove;
+    return {
+      id: uniqueId,
+      remove,
+    };
   }
 
   /**
@@ -95,10 +90,7 @@ export class DBInstance {
    * @param query
    * @param callback
    */
-  addDocListener(
-    query: DocListener<any>["query"],
-    callback: (snapshot: any) => void,
-  ) {
+  addDocListener(query: DocListener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
 
     const remove = () => {
@@ -112,7 +104,10 @@ export class DBInstance {
       remove,
     });
 
-    return remove;
+    return {
+      id: uniqueId,
+      remove,
+    };
   }
 
   /**
@@ -303,9 +298,7 @@ export class DBInstance {
     }
 
     const docs = collection.docs;
-    const index = docs.findIndex(
-      (docSnapshot) => docSnapshot.id === documentId,
-    );
+    const index = docs.findIndex((docSnapshot) => docSnapshot.id === documentId);
 
     if (index === -1) {
       return false;
