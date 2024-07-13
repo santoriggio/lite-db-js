@@ -1,6 +1,6 @@
 {
   "name": "lite-db-js",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Local database for javascript's projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "madge:circular": "yarn madge -c ./src",
+    "prepare": "yarn typecheck && yarn lint && yarn test",
     "release": "release-it"
   },
   "repository": {
@@ -46,6 +47,13 @@
     "singleQuote": false,
     "trailingComma": "all",
     "semi": true
+  },
+  "release-it": {
+    "hooks": {
+      "before:init": [
+        "yarn prepare"
+      ]
+    }
   },
   "publishConfig": {
     "access": "public",
