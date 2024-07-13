@@ -1,7 +1,7 @@
 import Document from "./Document";
 import Collection from "./Collection";
 import generateUID from "./generateUID";
-import { DocumentData, Listener, WriteEvent } from "./types";
+import { DocumentData, Listener } from "./types";
 
 /**
  * @template T
@@ -31,7 +31,12 @@ export default class DB {
    * @returns {Document<T>} Document Reference
    */
   doc<T extends DocumentData>(id: string): Document<T> {
-    const splitted = id.split("/").filter((str) => str.trim() !== "" && typeof str !== "undefined" && str !== null);
+    const splitted = id
+      .split("/")
+      .filter(
+        (str) =>
+          str.trim() !== "" && typeof str !== "undefined" && str !== null,
+      );
 
     if (splitted.length === 0) {
       throw Error("invalid_path: " + id);
@@ -65,7 +70,13 @@ export class DBInstance {
   listeners: Listener<any>[] = [];
   docListeners: Listener<any>[] = [];
 
-  addListener(query: Listener<any>["query"], callback: (snapshot: any) => void) {
+  /**
+   *
+   */
+  addListener(
+    query: Listener<any>["query"],
+    callback: (snapshot: any) => void,
+  ) {
     const uniqueId = generateUID();
 
     const remove = () => {
@@ -90,7 +101,10 @@ export class DBInstance {
    * @param query
    * @param callback
    */
-  addDocListener(query: DocListener<any>["query"], callback: (snapshot: any) => void) {
+  addDocListener(
+    query: Listener<any>["query"],
+    callback: (snapshot: any) => void,
+  ) {
     const uniqueId = generateUID();
 
     const remove = () => {
@@ -121,40 +135,46 @@ export class DBInstance {
     for (let i = 0; i < this.listeners.length; i++) {
       const listener = this.listeners[i];
 
+      if (typeof listener === "undefined") return;
+
       for (let j = 0; j < list.length; j++) {
         if (toCall[listener.id]) {
           continue;
         }
 
         const doc = list[j];
-        const filters = listener.query.filters;
-        let isValid = true;
+        if (doc && doc.exists) {
+          const filters = listener.query.filters;
+          let isValid = true;
 
-        filters.forEach((filter) => {
-          if (typeof filter === "undefined") {
-            return;
-          }
+          filters.forEach((filter) => {
+            if (typeof filter === "undefined") {
+              return;
+            }
 
-          if (typeof doc.data === "undefined") {
-            return (isValid = false);
-          }
-
-          if (typeof doc.data[filter.key] === "undefined") {
-            return (isValid = false);
-          }
-
-          if (filter.operator === "==") {
-            if (doc.data[filter.key] !== filter.value) {
+            if (typeof doc.data === "undefined") {
               return (isValid = false);
             }
-          }
-        });
 
-        if (isValid) {
-          toCall = {
-            ...toCall,
-            [listener.id]: listener,
-          };
+            if (typeof doc.data[filter.key] === "undefined") {
+              return (isValid = false);
+            }
+
+            if (filter.operator === "==") {
+              if (doc.data[filter.key] !== filter.value) {
+                return (isValid = false);
+              }
+            }
+
+            return;
+          });
+
+          if (isValid) {
+            toCall = {
+              ...toCall,
+              [listener.id]: listener,
+            };
+          }
         }
       }
     }
@@ -209,6 +229,7 @@ export class DBInstance {
     });
 
     this.docListeners.forEach((listener) => {
+      // @ts-ignore
       if (listener.query.id === current.id) {
         listener.func(listener.query);
       }
@@ -226,6 +247,7 @@ export class DBInstance {
     for (let i = 0; i < this.listeners.length; i++) {
       const listener = this.listeners[i];
 
+      if (typeof listener === "undefined") return;
       for (let j = 0; j < list.length; j++) {
         if (toCall[listener.id]) {
           continue;
@@ -253,6 +275,8 @@ export class DBInstance {
               return (isValid = false);
             }
           }
+
+          return;
         });
 
         if (isValid) {
@@ -269,6 +293,7 @@ export class DBInstance {
     });
 
     this.docListeners.forEach((listener) => {
+      // @ts-ignore
       if (listener.query.id === a.id) {
         listener.func(listener.query);
       }
@@ -298,7 +323,9 @@ export class DBInstance {
     }
 
     const docs = collection.docs;
-    const index = docs.findIndex((docSnapshot) => docSnapshot.id === documentId);
+    const index = docs.findIndex(
+      (docSnapshot) => docSnapshot.id === documentId,
+    );
 
     if (index === -1) {
       return false;
@@ -312,5 +339,5 @@ export class DBInstance {
    * Function to call on document write action, which comprends create, update and delete
    * @param {WriteEvent} e Event
    */
-  onWrite<T extends DocumentData>(e: WriteEvent<T>) {}
+  // onWrite<T extends DocumentData>(e: WriteEvent<T>) { }
 }
