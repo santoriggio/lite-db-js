@@ -77,6 +77,7 @@ export default class Document<T extends DocumentData> {
   on(callback: (snapshot: Document<T>) => void): { id: string; remove: () => void } {
     callback(this);
 
+    // @ts-ignore
     return this.db.addDocListener(this, callback);
   }
 
