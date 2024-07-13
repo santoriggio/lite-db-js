@@ -6,8 +6,10 @@ type DocType = {
   vote?: number;
   id: string;
 };
+
 const db = new DB();
 const collection = db.collection<DocType>("test");
+
 beforeEach(() => {
   collection.clear();
 });
