@@ -4,7 +4,7 @@ export type DocumentData = {
   [key: string]: any;
 };
 
-export type Listener<T> = {
+export type Listener<T extends DocumentData> = {
   id: string;
   query: Query<T>;
   func: (snapshot: T) => void;
@@ -25,7 +25,7 @@ export interface Document<T extends DocumentData> {
   on(snapshot: () => void): void;
 }
 
-export interface DBInstance {}
+export interface DBInstance { }
 
 export type WriteEvent<T extends DocumentData> = {
   type: "create" | "update" | "delete";

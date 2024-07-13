@@ -72,9 +72,9 @@ export default class Document<T extends DocumentData> {
   /**
    * Add listener on change of the document
    * @param {(snapshot: Document<T>)=> void} callback Function to be called on change document
-   * @returns {()=> void} remove function
+   * @returns {{id: string; remove: ()=>void}} remove function
    */
-  on(callback: (snapshot: Document<T>) => void): () => void {
+  on(callback: (snapshot: Document<T>) => void): { id: string; remove: () => void } {
     callback(this);
 
     return this.db.addDocListener(this, callback);
