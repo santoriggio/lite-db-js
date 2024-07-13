@@ -10,7 +10,7 @@
     "test": "jest",
     "madge:circular": "yarn madge -c ./src",
     "prepare": "yarn typecheck && yarn lint && yarn test && yarn build",
-    "build": "tsc",
+    "build": "tsc && scripts/minify.js",
     "release": "release-it"
   },
   "repository": {
@@ -37,11 +37,13 @@
     "eslint-plugin-jest": "^28.6.0",
     "eslint-plugin-jsdoc": "^48.5.2",
     "jest": "^29.7.0",
+    "jsmin": "^1.0.1",
     "madge": "^7.0.0",
     "prettier": "^3.3.2",
     "release-it": "^17.5.0",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "uglify-js": "^3.18.0"
   },
   "prettier": {
     "useTabs": false,
@@ -61,5 +63,9 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "global": "^4.4.0",
+    "uglifyjs-folder": "^3.3.0"
   }
 }
