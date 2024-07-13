@@ -1,6 +1,6 @@
 {
   "name": "lite-db-js",
-  "version": "4.0.2",
+  "version": "4.0.4",
   "description": "Local database for javascript's projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,8 @@
     "test": "jest",
     "madge:circular": "yarn madge -c ./src",
     "prepare": "yarn typecheck && yarn lint && yarn test && yarn build",
-    "build": "tsc && scripts/minify.js",
+    "build": "tsc && yarn minify",
+    "minify": "scripts/minify.js",
     "release": "release-it"
   },
   "repository": {
@@ -61,9 +62,5 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
-  },
-  "dependencies": {
-    "global": "^4.4.0",
-    "uglifyjs-folder": "^3.3.0"
   }
 }
