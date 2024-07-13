@@ -1,6 +1,6 @@
 {
   "name": "lite-db-js",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Local database for javascript's projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "madge:circular": "yarn madge -c ./src",
-    "prepare": "yarn typecheck && yarn lint && yarn test",
+    "prepare": "yarn typecheck && yarn lint && yarn test && yarn build",
+    "build": "tsc",
     "release": "release-it"
   },
   "repository": {
