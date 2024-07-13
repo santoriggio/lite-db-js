@@ -42,6 +42,7 @@ export default class Collection<T extends DocumentData = DocumentData> extends Q
   }
 
   /**
+   * Delete document from collection
    * @param {Document<T>} doc Document
    */
   deleteDoc(doc: Document<T>) {
