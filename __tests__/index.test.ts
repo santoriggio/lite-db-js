@@ -1,4 +1,4 @@
-import { DB } from "../src";
+import DB from "../src";
 
 const db = new DB();
 type ListItem = {

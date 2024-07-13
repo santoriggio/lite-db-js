@@ -1,2 +1,2 @@
 import DB from "./DB";
-export { DB };
+export default DB;

@@ -23,7 +23,10 @@ export default class Document<T extends DocumentData> {
   ) {
     this.uniqueId = id;
     this.uniquePath = `${collection}/${id}`;
-    this.documentData = data;
+
+    if (typeof data !== "undefined") {
+      this.documentData = data;
+    }
   }
 
   /**
@@ -96,8 +99,8 @@ export default class Document<T extends DocumentData> {
   /**
    * @returns {T} Return T
    */
-  get data(): T | undefined {
-    return this.documentData;
+  get data(): T {
+    return this.documentData as T;
   }
 
   /**

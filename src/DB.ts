@@ -1,7 +1,7 @@
 import Document from "./Document";
 import Collection from "./Collection";
 import generateUID from "./generateUID";
-import { DocumentData, Listener } from "./types";
+import { DocumentData, CollListener } from "./types";
 
 /**
  * @template T
@@ -31,12 +31,7 @@ export default class DB {
    * @returns {Document<T>} Document Reference
    */
   doc<T extends DocumentData>(id: string): Document<T> {
-    const splitted = id
-      .split("/")
-      .filter(
-        (str) =>
-          str.trim() !== "" && typeof str !== "undefined" && str !== null,
-      );
+    const splitted = id.split("/").filter((str) => str.trim() !== "" && typeof str !== "undefined" && str !== null);
 
     if (splitted.length === 0) {
       throw Error("invalid_path: " + id);
@@ -67,16 +62,13 @@ export default class DB {
  */
 export class DBInstance {
   collections: Record<string, Collection<any>> = {};
-  listeners: Listener<any>[] = [];
-  docListeners: Listener<any>[] = [];
+  listeners: CollListener<any>[] = [];
+  docListeners: CollListener<any>[] = [];
 
   /**
    *
    */
-  addListener(
-    query: Listener<any>["query"],
-    callback: (snapshot: any) => void,
-  ) {
+  addListener(query: CollListener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
 
     const remove = () => {
@@ -101,10 +93,7 @@ export class DBInstance {
    * @param query
    * @param callback
    */
-  addDocListener(
-    query: Listener<any>["query"],
-    callback: (snapshot: any) => void,
-  ) {
+  addDocListener(query: CollListener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
 
     const remove = () => {
@@ -129,7 +118,7 @@ export class DBInstance {
    * @param a
    */
   onAdd(a: Document<any> | Document<any>[]) {
-    let toCall: Record<string, Listener<any>> = {};
+    let toCall: Record<string, CollListener<any>> = {};
     const list = Array.isArray(a) ? a : [a];
 
     for (let i = 0; i < this.listeners.length; i++) {
@@ -241,7 +230,7 @@ export class DBInstance {
    * @param a
    */
   onDelete(a: Document<any>) {
-    let toCall: Record<string, Listener<any>> = {};
+    let toCall: Record<string, CollListener<any>> = {};
     const list = Array.isArray(a) ? a : [a];
 
     for (let i = 0; i < this.listeners.length; i++) {
@@ -323,9 +312,7 @@ export class DBInstance {
     }
 
     const docs = collection.docs;
-    const index = docs.findIndex(
-      (docSnapshot) => docSnapshot.id === documentId,
-    );
+    const index = docs.findIndex((docSnapshot) => docSnapshot.id === documentId);
 
     if (index === -1) {
       return false;
