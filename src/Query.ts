@@ -1,6 +1,7 @@
 import { DBInstance } from "./DB";
 import Document from "./Document";
-import { DocumentData } from "./types";
+import extractKey from "./extractKey";
+import { DocumentData, NestedKeyOf, Operator } from "./types";
 
 /**
  *
@@ -63,25 +64,7 @@ export default class Query<T extends DocumentData> {
         let valid = true;
 
         this._filters.forEach((filter) => {
-          if (typeof filter === "undefined") {
-            return;
-          }
-
-          if (typeof doc.data === "undefined") {
-            return (valid = false);
-          }
-
-          if (typeof doc.data[filter.key] === "undefined") {
-            return (valid = false);
-          }
-
-          if (filter.operator === "==") {
-            if (doc.data[filter.key] !== filter.value) {
-              return (valid = false);
-            }
-          }
-
-          return;
+          valid = isValidFilter(doc.data, filter.key, filter.operator, filter.value);
         });
 
         if (valid) {
@@ -99,7 +82,7 @@ export default class Query<T extends DocumentData> {
    * @param operator
    * @param value
    */
-  where(key: keyof T, operator: "==", value: any) {
+  where<E extends NestedKeyOf<T>>(key: E, operator: Operator, value: any) {
     return new Query<T>(this._db, this.path, [...this._filters, { key, operator, value }]);
   }
 
@@ -119,4 +102,74 @@ export default class Query<T extends DocumentData> {
   get path() {
     return this.uniquePath;
   }
+}
+
+/**
+ *
+ */
+function isValidFilter(data: Record<string, any>, key: string, operator: Operator, value: any): boolean {
+  const extracted = extractKey(data, key);
+  if (typeof extracted === "undefined" || extracted === null) {
+    return false;
+  }
+
+  if (operator === "==") {
+    if (extracted !== value) {
+      return false;
+    }
+  }
+
+  if (operator === "<") {
+    if (extracted >= value) {
+      return false;
+    }
+  }
+
+  if (operator === ">") {
+    if (extracted <= value) {
+      return false;
+    }
+  }
+
+  if (operator === "<=") {
+    if (extracted > value) {
+      return false;
+    }
+  }
+
+  if (operator === ">=") {
+    if (extracted < value) {
+      return false;
+    }
+  }
+
+  if (operator === "has") {
+    if (typeof extracted === "string" || Array.isArray(extracted)) {
+      if (extracted.includes(value) === false) {
+        return false;
+      }
+    }
+
+    if (typeof extracted === "object" && !Array.isArray(extracted)) {
+      if (typeof extracted[value] === "undefined") {
+        return false;
+      }
+    }
+  }
+
+  if (operator === "!has") {
+    if (typeof extracted === "string" || Array.isArray(extracted)) {
+      if (extracted.includes(value)) {
+        return false;
+      }
+    }
+
+    if (typeof extracted === "object" && !Array.isArray(extracted)) {
+      if (typeof extracted[value] !== "undefined") {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }

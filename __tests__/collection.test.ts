@@ -91,3 +91,138 @@ describe("basic cases", () => {
     expect(query.docs.length).toEqual(1);
   });
 });
+
+type ComplexData = {
+  name: string;
+  age: number;
+  array: string[];
+  complexObj: {
+    email: string;
+    phone: string;
+    complexAge: number;
+    complexArray: string[];
+  };
+};
+
+const dataArray: ComplexData[] = [
+  {
+    name: "Alice",
+    age: 30,
+    array: ["item1", "item2", "item3"],
+    complexObj: {
+      email: "alice@example.com",
+      phone: "123-456-7890",
+      complexAge: 30,
+      complexArray: ["subItem1", "subItem2"],
+    },
+  },
+  {
+    name: "Bob",
+    age: 25,
+    array: ["item4", "item5", "item6"],
+    complexObj: {
+      email: "bob@example.com",
+      phone: "234-567-8901",
+      complexAge: 25,
+      complexArray: ["subItem3", "subItem4"],
+    },
+  },
+  {
+    name: "Charlie",
+    age: 35,
+    array: ["item7", "item8", "item9"],
+    complexObj: {
+      email: "charlie@example.com",
+      phone: "345-678-9012",
+      complexAge: 35,
+      complexArray: ["subItem5", "subItem6"],
+    },
+  },
+  {
+    name: "Diana",
+    age: 28,
+    array: ["item10", "item11", "item12"],
+    complexObj: {
+      email: "diana@example.com",
+      phone: "456-789-0123",
+      complexAge: 28,
+      complexArray: ["subItem7", "subItem8"],
+    },
+  },
+  {
+    name: "Eve",
+    age: 32,
+    array: ["item13", "item14", "item15"],
+    complexObj: {
+      email: "eve@example.com",
+      phone: "567-890-1234",
+      complexAge: 32,
+      complexArray: ["subItem9", "subItem10"],
+    },
+  },
+];
+
+const complexCollection = db.collection<ComplexData>("complexCollection");
+
+describe(".where() method filtering", () => {
+  beforeAll(() => {
+    complexCollection.clear();
+    complexCollection.add(dataArray);
+  });
+  it("== operator on first layer", () => {
+    const list = complexCollection.where("name", "==", "Eve");
+
+    expect(list.count).toBe(1);
+    expect(list.docs.length).toBe(1);
+  });
+  it("< operator on first layer", () => {
+    const list = complexCollection.where("age", "<", 30);
+
+    expect(list.count).toBe(2);
+    expect(list.docs.length).toBe(2);
+  });
+  it("> operator on first layer", () => {
+    const list = complexCollection.where("age", ">", 30);
+
+    expect(list.count).toBe(2);
+    expect(list.docs.length).toBe(2);
+  });
+  it("<= operator on first layer", () => {
+    const list = complexCollection.where("age", "<=", 30);
+
+    expect(list.count).toBe(3);
+    expect(list.docs.length).toBe(3);
+  });
+
+  it(">= operator on first layer", () => {
+    const list = complexCollection.where("age", ">=", 30);
+
+    expect(list.count).toBe(3);
+    expect(list.docs.length).toBe(3);
+  });
+  it("'has' operator on first layer", () => {
+    const list = complexCollection.where("array", "has", "item10");
+
+    expect(list.count).toBe(1);
+    expect(list.docs.length).toBe(1);
+  });
+  it("'!has' operator on first layer", () => {
+    const list = complexCollection.where("array", "!has", "item10");
+
+    expect(list.count).toBe(4);
+    expect(list.docs.length).toBe(4);
+  });
+  it("== operator on second layer", () => {
+    const list = complexCollection.where("complexObj.email", "==", "eve@example.com");
+
+    expect(list.count).toBe(1);
+    expect(list.docs.length).toBe(1);
+  });
+
+  it("> operator on second layer", () => {
+    const list = complexCollection.where("complexObj.complexAge", ">", 30);
+
+    expect(list.count).toBe(2);
+    expect(list.docs.length).toBe(2);
+  });
+});
