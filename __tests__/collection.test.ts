@@ -268,3 +268,28 @@ describe(".on method", () => {
     listener.remove();
   });
 });
+
+describe("orderBy method", () => {
+  it("asc by age", () => {
+    const query = complexCollection.orderBy("age", "asc");
+    const docs = query.docs.map((docSnapshot) => docSnapshot.data);
+
+    const ages = docs.map((doc) => doc.age);
+
+    // Controlla che l'array delle età sia ordinato in modo crescente
+    for (let i = 0; i < ages.length - 1; i++) {
+      expect(ages[i]).toBeLessThanOrEqual(ages[i + 1]);
+    }
+  });
+  it("desc by age", () => {
+    const query = complexCollection.orderBy("age", "desc");
+    const docs = query.docs.map((docSnapshot) => docSnapshot.data);
+
+    const ages = docs.map((doc) => doc.age);
+
+    // Controlla che l'array delle età sia ordinato in modo crescente
+    for (let i = 0; i < ages.length - 1; i++) {
+      expect(ages[i]).toBeGreaterThanOrEqual(ages[i + 1]);
+    }
+  });
+});
