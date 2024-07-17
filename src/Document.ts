@@ -65,7 +65,8 @@ export default class Document<T extends DocumentData> {
    * Delete document
    */
   delete() {
-    const collectionPath = this.uniquePath.split("/").slice(0, -1).join("/");
+    const collectionPath = this.uniquePath.split("/").slice(0, -1)
+      .join("/");
 
     if (typeof this.db.collections[collectionPath] !== "undefined") {
       this.db.collections[collectionPath].deleteDoc(this);

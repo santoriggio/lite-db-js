@@ -2,6 +2,8 @@ import { DBInstance } from "./DB";
 import Document from "./Document";
 import { DocumentData } from "./types";
 
+import { DocumentData, NestedKeyOf, Operator } from "./types";
+
 /**
  *
  *
@@ -105,6 +107,15 @@ export default class Query<T extends DocumentData> {
 
   /**
    *
+   * @param key
+   * @param order
+   */
+  orderBy<E extends NestedKeyOf<T>>(key: E, order: "asc" | "desc") {
+    return new Query<T>(this._db, this.path, [...this._filters, { key, order }]);
+  }
+
+  /**
+   *
    * @param callback
    */
   on(callback: (snapshot: Query<T>) => void) {
@@ -115,8 +126,108 @@ export default class Query<T extends DocumentData> {
 
   /**
    *
+   * @param documentData
    */
   get path() {
     return this.uniquePath;
   }
+}
+
+/**
+ *
+ * @param data
+ * @param key
+ * @param operator
+ * @param value
+ */
+function isValidFilter(data: Record<string, any>, key: string, operator: Operator, value: any): boolean {
+  const extracted = extractKey(data, key);
+  if (typeof extracted === "undefined" || extracted === null) {
+    return false;
+  }
+
+  if (operator === "==") {
+    if (extracted !== value) {
+      return false;
+    }
+  }
+
+  if (operator === "<") {
+    if (extracted >= value) {
+      return false;
+    }
+  }
+
+  if (operator === ">") {
+    if (extracted <= value) {
+      return false;
+    }
+  }
+
+  if (operator === "<=") {
+    if (extracted > value) {
+      return false;
+    }
+  }
+
+  if (operator === ">=") {
+    if (extracted < value) {
+      return false;
+    }
+  }
+
+  if (operator === "has") {
+    if (typeof extracted === "string" || Array.isArray(extracted)) {
+      if (extracted.includes(value) === false) {
+        return false;
+      }
+    }
+
+    if (typeof extracted === "object" && !Array.isArray(extracted)) {
+      if (typeof extracted[value] === "undefined") {
+        return false;
+      }
+    }
+  }
+
+  if (operator === "!has") {
+    if (typeof extracted === "string" || Array.isArray(extracted)) {
+      if (extracted.includes(value)) {
+        return false;
+      }
+    }
+
+    if (typeof extracted === "object" && !Array.isArray(extracted)) {
+      if (typeof extracted[value] !== "undefined") {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ *
+ *
+ * @param list
+ * @param key
+ * @param order
+ */
+function orderListByKey<T extends DocumentData>(list: Document<T>[], key: NestedKeyOf<T>, order: "asc" | "desc"): void {
+  const compare = (a: Document<T>, b: Document<T>) => {
+    const aValue = extractKey(a.data, key);
+    const bValue = extractKey(b.data, key);
+
+    if (aValue < bValue) {
+      return order === "asc" ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return order === "asc" ? 1 : -1;
+    }
+
+    return 0;
+  };
+
+  list.sort(compare);
 }
