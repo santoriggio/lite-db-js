@@ -1,8 +1,8 @@
 import { DBInstance } from "./DB";
 import Document from "./Document";
 import extractKey from "./extractKey";
-import { DocumentData, NestedKeyOf, Operator } from "./types";
 
+import { DocumentData, NestedKeyOf, Operator } from "./types";
 /**
  *
  *
@@ -35,13 +35,6 @@ export default class Query<T extends DocumentData> {
   /**
    *
    */
-  get filters() {
-    return this._filters;
-  }
-
-  /**
-   *
-   */
   get count() {
     return this.docs.length;
   }
@@ -57,7 +50,7 @@ export default class Query<T extends DocumentData> {
 
     const docs = collection.docs;
 
-    if (this.filters.length === 0) return docs;
+    if (this._filters.length === 0) return docs;
 
     if (this._filters.length > 0) {
       docs.forEach((doc) => {
@@ -65,6 +58,14 @@ export default class Query<T extends DocumentData> {
           array.push(doc);
         }
       });
+
+      for (const filter of this._filters) {
+        if (typeof filter.order === "undefined") {
+          continue;
+        }
+
+        orderListByKey(array, filter.key, filter.order);
+      }
     }
 
     return array;
@@ -82,6 +83,13 @@ export default class Query<T extends DocumentData> {
 
   /**
    *
+   */
+  orderBy<E extends NestedKeyOf<T>>(key: E, order: "asc" | "desc") {
+    return new Query<T>(this._db, this.path, [...this._filters, { key, order }]);
+  }
+
+  /**
+   *
    * @param callback
    */
   on(callback: (snapshot: Query<T>) => void) {
@@ -94,7 +102,11 @@ export default class Query<T extends DocumentData> {
    *
    */
   isValidDoc(documentData: Document<T>["data"]): boolean {
-    for (const filter of this.filters) {
+    for (const filter of this._filters) {
+      if (typeof filter.order !== "undefined") {
+        continue;
+      }
+
       const isValid = isValidFilter(documentData, filter.key, filter.operator, filter.value);
 
       if (!isValid) {
@@ -181,4 +193,26 @@ function isValidFilter(data: Record<string, any>, key: string, operator: Operato
   }
 
   return true;
+}
+
+/**
+ *
+ *
+ */
+function orderListByKey<T extends DocumentData>(list: Document<T>[], key: NestedKeyOf<T>, order: "asc" | "desc"): void {
+  const compare = (a: Document<T>, b: Document<T>) => {
+    const aValue = extractKey(a.data, key);
+    const bValue = extractKey(b.data, key);
+
+    if (aValue < bValue) {
+      return order === "asc" ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return order === "asc" ? 1 : -1;
+    }
+
+    return 0;
+  };
+
+  list.sort(compare);
 }
