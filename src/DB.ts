@@ -126,6 +126,7 @@ export class DBInstance {
 
       if (typeof listener === "undefined") return;
 
+      const docs = listener.query.docs;
       for (let j = 0; j < list.length; j++) {
         if (toCall[listener.id]) {
           continue;
@@ -133,32 +134,8 @@ export class DBInstance {
 
         const doc = list[j];
         if (doc && doc.exists) {
-          const filters = listener.query.filters;
-          let isValid = true;
-
-          filters.forEach((filter) => {
-            if (typeof filter === "undefined") {
-              return;
-            }
-
-            if (typeof doc.data === "undefined") {
-              return (isValid = false);
-            }
-
-            if (typeof doc.data[filter.key] === "undefined") {
-              return (isValid = false);
-            }
-
-            if (filter.operator === "==") {
-              if (doc.data[filter.key] !== filter.value) {
-                return (isValid = false);
-              }
-            }
-
-            return;
-          });
-
-          if (isValid) {
+          const index = docs.findIndex((curr) => curr.id === doc.id);
+          if (index >= 0) {
             toCall = {
               ...toCall,
               [listener.id]: listener,
@@ -174,52 +151,25 @@ export class DBInstance {
   }
 
   /**
-   *
    * @param prev
    * @param current
    */
-  onEdit(prev: DocumentData | undefined, current: Document<any>) {
+  onEdit(prevDocumentData: Document<any>["data"], document: Document<any>) {
     this.listeners.forEach((listener) => {
-      const filters = listener.query.filters;
+      const docs = listener.query.docs;
 
-      const isValid = [true, true];
-
-      filters.forEach((filter) => {
-        if (typeof filter === "undefined") return;
-
-        if (typeof prev === "undefined") {
-          isValid[0] = false;
-        } else {
-          if (typeof prev[filter.key] === "undefined") {
-            isValid[0] = false;
-          } else {
-            if (filter.operator === "==") {
-              if (prev[filter.key] !== filter.value) isValid[0] = false;
-            }
-          }
-        }
-
-        if (typeof current.data === "undefined") {
-          isValid[1] = false;
-        } else {
-          if (typeof current.data[filter.key] === "undefined") {
-            isValid[1] = false;
-          } else {
-            if (filter.operator === "==") {
-              if (current.data[filter.key] !== filter.value) isValid[1] = false;
-            }
-          }
-        }
-      });
-
-      if (isValid.includes(true)) {
+      const beforeIsValid = listener.query.isValidDoc(prevDocumentData);
+      const index = docs.findIndex((curr) => curr.id === document.id);
+      if (index >= 0) {
+        listener.func(listener.query);
+      } else if (index === -1 && beforeIsValid) {
         listener.func(listener.query);
       }
     });
 
     this.docListeners.forEach((listener) => {
       // @ts-ignore
-      if (listener.query.id === current.id) {
+      if (listener.query.id === document.id) {
         listener.func(listener.query);
       }
     });
@@ -227,53 +177,29 @@ export class DBInstance {
 
   /**
    *
-   * @param a
+   * @param {Document<any>} document Deleted Document
    */
-  onDelete(a: Document<any>) {
+  onDelete(document: Document<any>) {
     let toCall: Record<string, CollListener<any>> = {};
-    const list = Array.isArray(a) ? a : [a];
-
-    for (let i = 0; i < this.listeners.length; i++) {
+    const listenersLength = this.listeners.length;
+    for (let i = 0; i < listenersLength; i++) {
       const listener = this.listeners[i];
 
       if (typeof listener === "undefined") return;
-      for (let j = 0; j < list.length; j++) {
-        if (toCall[listener.id]) {
-          continue;
-        }
 
-        const doc = list[j];
-        const filters = listener.query.filters;
-        let isValid = true;
+      if (toCall[listener.id]) {
+        continue;
+      }
 
-        filters.forEach((filter) => {
-          if (typeof filter === "undefined") {
-            return;
-          }
+      const docs = listener.query.docs;
+      const isValidDoc = listener.query.isValidDoc(document.data);
+      const index = docs.findIndex((curr) => curr.id === document.id);
 
-          if (typeof doc.data === "undefined") {
-            return (isValid = false);
-          }
-
-          if (typeof doc.data[filter.key] === "undefined") {
-            return (isValid = false);
-          }
-
-          if (filter.operator === "==") {
-            if (doc.data[filter.key] !== filter.value) {
-              return (isValid = false);
-            }
-          }
-
-          return;
-        });
-
-        if (isValid) {
-          toCall = {
-            ...toCall,
-            [listener.id]: listener,
-          };
-        }
+      if (index === -1 && isValidDoc) {
+        toCall = {
+          ...toCall,
+          [listener.id]: listener,
+        };
       }
     }
 
@@ -283,7 +209,7 @@ export class DBInstance {
 
     this.docListeners.forEach((listener) => {
       // @ts-ignore
-      if (listener.query.id === a.id) {
+      if (listener.query.id === document.id) {
         listener.func(listener.query);
       }
     });
