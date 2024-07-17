@@ -28,14 +28,10 @@ export type Operator = "==" | "<" | "<=" | ">" | ">=" | "has" | "!has";
 
 type Primitive = string | number | boolean | null | undefined | Array<any>;
 
-type IsObject<T> = T extends Primitive ? false : true;
-
 type ObjectKeys<T extends object> = keyof T & (string | number);
 
 export type NestedKeyOf<ObjectType extends object> = {
-  [Key in ObjectKeys<ObjectType>]: IsObject<ObjectType[Key]> extends true
-    ? ObjectType[Key] extends object
-      ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
-      : never
-    : `${Key}`;
+  [Key in ObjectKeys<ObjectType>]: ObjectType[Key] extends Primitive
+  ? `${Key}`
+  : `${Key}` | `${Key}.${NestedKeyOf<NonNullable<ObjectType[Key]>>}`;
 }[ObjectKeys<ObjectType>];

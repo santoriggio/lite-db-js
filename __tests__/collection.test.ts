@@ -1,5 +1,7 @@
+import Collection from "../src/Collection";
 import DB from "../src/DB";
 import generateUID from "../src/generateUID";
+import Query from "../src/Query";
 
 type DocType = {
   title: string;
@@ -95,8 +97,8 @@ describe("basic cases", () => {
 type ComplexData = {
   name: string;
   age: number;
-  array: string[];
-  complexObj: {
+  array?: string[];
+  complexObj?: {
     email: string;
     phone: string;
     complexAge: number;
@@ -224,5 +226,45 @@ describe(".where() method filtering", () => {
 
     expect(list.count).toBe(2);
     expect(list.docs.length).toBe(2);
+  });
+});
+
+describe(".on method", () => {
+  it("callback should be called", () => {
+    const callback = jest.fn();
+    const listener = complexCollection.where("age", ">", 30).on(callback);
+
+    complexCollection.add({ name: "AAAAAAA", age: 28 });
+    expect(callback).toHaveBeenCalledTimes(1);
+
+    complexCollection.add({ name: "AAAAAAA", age: 31 });
+    expect(callback).toHaveBeenCalledTimes(2);
+    listener.remove();
+  });
+  it("on edit document", () => {
+    const callback = jest.fn();
+    const query = complexCollection.where("age", ">", 30);
+    const listener = query.on(callback);
+
+    const docs = query.docs;
+    const doc = docs[0];
+
+    doc.update({ age: 28 });
+    expect(callback).toHaveBeenCalledTimes(2);
+
+    listener.remove();
+  });
+  it("on delete document", () => {
+    const callback = jest.fn();
+    const query = complexCollection.where("age", ">", 30);
+    const listener = query.on(callback);
+
+    const docs = query.docs;
+    const doc = docs[0];
+
+    doc.delete();
+    expect(callback).toHaveBeenCalledTimes(2);
+
+    listener.remove();
   });
 });

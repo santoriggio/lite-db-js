@@ -61,13 +61,7 @@ export default class Query<T extends DocumentData> {
 
     if (this._filters.length > 0) {
       docs.forEach((doc) => {
-        let valid = true;
-
-        this._filters.forEach((filter) => {
-          valid = isValidFilter(doc.data, filter.key, filter.operator, filter.value);
-        });
-
-        if (valid) {
+        if (this.isValidDoc(doc.data)) {
           array.push(doc);
         }
       });
@@ -94,6 +88,21 @@ export default class Query<T extends DocumentData> {
     callback(this);
 
     return this._db.addListener(this, callback);
+  }
+
+  /**
+   *
+   */
+  isValidDoc(documentData: Document<T>["data"]): boolean {
+    for (const filter of this.filters) {
+      const isValid = isValidFilter(documentData, filter.key, filter.operator, filter.value);
+
+      if (!isValid) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**

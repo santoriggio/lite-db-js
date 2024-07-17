@@ -7,6 +7,8 @@ export default function extractKey<E extends DocumentData, T extends NestedKeyOf
   const splittedKeys: string[] = key.split(".");
   let ans = obj;
 
+  if (typeof ans === "undefined") return undefined;
+
   for (const splittedKey of splittedKeys) {
     if (typeof ans[splittedKey] === "undefined") {
       return undefined;
