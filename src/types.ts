@@ -23,3 +23,15 @@ export type WriteEvent<T extends DocumentData> = {
   type: "create" | "update" | "delete";
   document: Document<T>;
 };
+
+export type Operator = "==" | "<" | "<=" | ">" | ">=" | "has" | "!has";
+
+type Primitive = string | number | boolean | null | undefined | Array<any>;
+
+type ObjectKeys<T extends object> = keyof T & (string | number);
+
+export type NestedKeyOf<ObjectType extends object> = {
+  [Key in ObjectKeys<ObjectType>]: ObjectType[Key] extends Primitive
+  ? `${Key}`
+  : `${Key}` | `${Key}.${NestedKeyOf<NonNullable<ObjectType[Key]>>}`;
+}[ObjectKeys<ObjectType>];
