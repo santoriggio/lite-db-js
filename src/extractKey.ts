@@ -2,6 +2,8 @@ import { DocumentData, NestedKeyOf } from "./types";
 
 /**
  *
+ * @param obj
+ * @param key
  */
 export default function extractKey<E extends DocumentData, T extends NestedKeyOf<E>>(obj: E, key: T) {
   const splittedKeys: string[] = key.split(".");

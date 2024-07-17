@@ -67,6 +67,8 @@ export class DBInstance {
 
   /**
    *
+   * @param query
+   * @param callback
    */
   addListener(query: CollListener<any>["query"], callback: (snapshot: any) => void) {
     const uniqueId = generateUID();
@@ -153,6 +155,8 @@ export class DBInstance {
   /**
    * @param prev
    * @param current
+   * @param prevDocumentData
+   * @param document
    */
   onEdit(prevDocumentData: Document<any>["data"], document: Document<any>) {
     this.listeners.forEach((listener) => {

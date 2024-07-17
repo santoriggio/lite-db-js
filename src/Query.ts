@@ -3,6 +3,7 @@ import Document from "./Document";
 import extractKey from "./extractKey";
 
 import { DocumentData, NestedKeyOf, Operator } from "./types";
+
 /**
  *
  *
@@ -83,6 +84,8 @@ export default class Query<T extends DocumentData> {
 
   /**
    *
+   * @param key
+   * @param order
    */
   orderBy<E extends NestedKeyOf<T>>(key: E, order: "asc" | "desc") {
     return new Query<T>(this._db, this.path, [...this._filters, { key, order }]);
@@ -100,6 +103,7 @@ export default class Query<T extends DocumentData> {
 
   /**
    *
+   * @param documentData
    */
   isValidDoc(documentData: Document<T>["data"]): boolean {
     for (const filter of this._filters) {
@@ -127,6 +131,10 @@ export default class Query<T extends DocumentData> {
 
 /**
  *
+ * @param data
+ * @param key
+ * @param operator
+ * @param value
  */
 function isValidFilter(data: Record<string, any>, key: string, operator: Operator, value: any): boolean {
   const extracted = extractKey(data, key);
@@ -198,6 +206,9 @@ function isValidFilter(data: Record<string, any>, key: string, operator: Operato
 /**
  *
  *
+ * @param list
+ * @param key
+ * @param order
  */
 function orderListByKey<T extends DocumentData>(list: Document<T>[], key: NestedKeyOf<T>, order: "asc" | "desc"): void {
   const compare = (a: Document<T>, b: Document<T>) => {
