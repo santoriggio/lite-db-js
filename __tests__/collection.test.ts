@@ -92,6 +92,14 @@ describe("basic cases", () => {
     expect(query.count).toEqual(1);
     expect(query.docs.length).toEqual(1);
   });
+  it("remove listener on listener.remove", () => {
+    const callback = jest.fn();
+    const listener = collection.on(callback);
+
+    listener.remove();
+    collection.add({ id: generateUID(), title: "AAAA" });
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
 });
 
 type ComplexData = {

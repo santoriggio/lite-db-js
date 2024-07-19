@@ -101,7 +101,6 @@ export class DBInstance {
   }
 
   /**
-   *
    * @param query
    * @param callback
    */
