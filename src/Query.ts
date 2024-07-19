@@ -79,7 +79,10 @@ export default class Query<T extends DocumentData> {
    * @param value
    */
   where<E extends NestedKeyOf<T>>(key: E, operator: Operator, value: any) {
-    return new Query<T>(this._db, this.path, [...this._filters, { key, operator, value }]);
+    return new Query<T>(this._db, this.path, [
+      ...this._filters,
+      { key, operator, value },
+    ]);
   }
 
   /**
@@ -88,7 +91,10 @@ export default class Query<T extends DocumentData> {
    * @param order
    */
   orderBy<E extends NestedKeyOf<T>>(key: E, order: "asc" | "desc") {
-    return new Query<T>(this._db, this.path, [...this._filters, { key, order }]);
+    return new Query<T>(this._db, this.path, [
+      ...this._filters,
+      { key, order },
+    ]);
   }
 
   /**
@@ -111,7 +117,12 @@ export default class Query<T extends DocumentData> {
         continue;
       }
 
-      const isValid = isValidFilter(documentData, filter.key, filter.operator, filter.value);
+      const isValid = isValidFilter(
+        documentData,
+        filter.key,
+        filter.operator,
+        filter.value,
+      );
 
       if (!isValid) {
         return false;
@@ -136,7 +147,12 @@ export default class Query<T extends DocumentData> {
  * @param operator
  * @param value
  */
-function isValidFilter(data: Record<string, any>, key: string, operator: Operator, value: any): boolean {
+function isValidFilter(
+  data: Record<string, any>,
+  key: string,
+  operator: Operator,
+  value: any,
+): boolean {
   const extracted = extractKey(data, key);
   if (typeof extracted === "undefined" || extracted === null) {
     return false;
@@ -210,7 +226,11 @@ function isValidFilter(data: Record<string, any>, key: string, operator: Operato
  * @param key
  * @param order
  */
-function orderListByKey<T extends DocumentData>(list: Document<T>[], key: NestedKeyOf<T>, order: "asc" | "desc"): void {
+function orderListByKey<T extends DocumentData>(
+  list: Document<T>[],
+  key: NestedKeyOf<T>,
+  order: "asc" | "desc",
+): void {
   const compare = (a: Document<T>, b: Document<T>) => {
     const aValue = extractKey(a.data, key);
     const bValue = extractKey(b.data, key);

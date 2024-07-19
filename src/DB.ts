@@ -31,7 +31,12 @@ export default class DB {
    * @returns {Document<T>} Document Reference
    */
   doc<T extends DocumentData>(id: string): Document<T> {
-    const splitted = id.split("/").filter((str) => str.trim() !== "" && typeof str !== "undefined" && str !== null);
+    const splitted = id
+      .split("/")
+      .filter(
+        (str) =>
+          str.trim() !== "" && typeof str !== "undefined" && str !== null,
+      );
 
     if (splitted.length === 0) {
       throw Error("invalid_path: " + id);
@@ -70,11 +75,16 @@ export class DBInstance {
    * @param query
    * @param callback
    */
-  addListener(query: CollListener<any>["query"], callback: (snapshot: any) => void) {
+  addListener(
+    query: CollListener<any>["query"],
+    callback: (snapshot: any) => void,
+  ) {
     const uniqueId = generateUID();
 
     const remove = () => {
-      this.listeners.filter((listener) => listener.id !== uniqueId);
+      this.listeners = this.listeners.filter(
+        (listener) => listener.id !== uniqueId,
+      );
     };
 
     this.listeners.push({
@@ -95,11 +105,16 @@ export class DBInstance {
    * @param query
    * @param callback
    */
-  addDocListener(query: CollListener<any>["query"], callback: (snapshot: any) => void) {
+  addDocListener(
+    query: CollListener<any>["query"],
+    callback: (snapshot: any) => void,
+  ) {
     const uniqueId = generateUID();
 
     const remove = () => {
-      this.docListeners.filter((listener) => listener.id !== uniqueId);
+      this.docListeners = this.docListeners.filter(
+        (listener) => listener.id !== uniqueId,
+      );
     };
 
     this.docListeners.push({
@@ -242,7 +257,9 @@ export class DBInstance {
     }
 
     const docs = collection.docs;
-    const index = docs.findIndex((docSnapshot) => docSnapshot.id === documentId);
+    const index = docs.findIndex(
+      (docSnapshot) => docSnapshot.id === documentId,
+    );
 
     if (index === -1) {
       return false;

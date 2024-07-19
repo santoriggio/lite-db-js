@@ -1,17 +1,17 @@
 {
   "name": "lite-db-js",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Local database for javascript's projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "react-native": "dist/index.js",
   "scripts": {
     "lint": "yarn eslint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "madge:circular": "yarn madge -c ./src",
     "prepare": "yarn typecheck && yarn lint && yarn test && yarn build",
-    "build": "tsc && yarn minify",
-    "minify": "scripts/minify.js",
+    "build": "tsc",
     "release": "release-it"
   },
   "repository": {
@@ -28,6 +28,7 @@
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.7",
     "@babel/preset-env": "^7.24.4",
+    "@babel/preset-typescript": "^7.24.7",
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@types/jest": "^29.5.12",

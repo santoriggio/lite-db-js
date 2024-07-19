@@ -8,7 +8,9 @@ import { DocumentData } from "./types";
  * Collection
  * @template T
  */
-export default class Collection<T extends DocumentData = DocumentData> extends Query<T> {
+export default class Collection<
+  T extends DocumentData = DocumentData,
+> extends Query<T> {
   private hashmap: Record<string, Document<T>> = {};
   private documents: Document<T>[] = [];
 
@@ -28,7 +30,7 @@ export default class Collection<T extends DocumentData = DocumentData> extends Q
    * @returns {Document<T>} Document
    */
   doc<E extends T>(id: string): Document<E | T> {
-    if (this.hashmap[id]) {
+    if (typeof this.hashmap[id] !== "undefined") {
       return this.hashmap[id];
     }
 

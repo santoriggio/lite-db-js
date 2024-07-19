@@ -1,7 +1,5 @@
-import Collection from "../src/Collection";
 import DB from "../src/DB";
 import generateUID from "../src/generateUID";
-import Query from "../src/Query";
 
 type DocType = {
   title: string;
@@ -87,7 +85,9 @@ describe("basic cases", () => {
 
     addItems();
 
-    const query = collection.where("vote", "==", 0).where("title", "==", "Item 0");
+    const query = collection
+      .where("vote", "==", 0)
+      .where("title", "==", "Item 0");
 
     expect(query.count).toEqual(1);
     expect(query.docs.length).toEqual(1);
@@ -215,7 +215,11 @@ describe(".where() method filtering", () => {
     expect(list.docs.length).toBe(4);
   });
   it("== operator on second layer", () => {
-    const list = complexCollection.where("complexObj.email", "==", "eve@example.com");
+    const list = complexCollection.where(
+      "complexObj.email",
+      "==",
+      "eve@example.com",
+    );
 
     expect(list.count).toBe(1);
     expect(list.docs.length).toBe(1);
