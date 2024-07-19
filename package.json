@@ -1,6 +1,6 @@
 {
   "name": "lite-db-js",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "description": "Local database for javascript's projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
