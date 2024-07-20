@@ -2,8 +2,9 @@ import Document from "./Document";
 import Collection from "./Collection";
 import generateUID from "./generateUID";
 import { DocumentData, CollListener } from "./types";
-/**
 
+/**
+ *
  * @template T
  */
 export default class DB {
