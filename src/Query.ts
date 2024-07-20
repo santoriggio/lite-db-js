@@ -5,8 +5,7 @@ import extractKey from "./extractKey";
 import { DocumentData, NestedKeyOf, Operator } from "./types";
 
 /**
- *
- *
+ * @template T
  */
 export default class Query<T extends DocumentData> {
   private uniquePath: string;
@@ -55,7 +54,7 @@ export default class Query<T extends DocumentData> {
 
     if (this._filters.length > 0) {
       docs.forEach((doc) => {
-        if (this.isValidDoc(doc.data)) {
+        if (this.isValidDoc(doc)) {
           array.push(doc);
         }
       });
@@ -109,16 +108,24 @@ export default class Query<T extends DocumentData> {
 
   /**
    *
-   * @param documentData
+   * @param {Document<T>} document Document to validate
+   * @param {"prev" | "current"} status The status of the data to check
    */
-  isValidDoc(documentData: Document<T>["data"]): boolean {
+  isValidDoc(
+    document: Document<T>,
+    status: "prev" | "current" = "current",
+  ): boolean {
+    if (document.collection !== this.uniquePath) {
+      return false;
+    }
+
     for (const filter of this._filters) {
       if (typeof filter.order !== "undefined") {
         continue;
       }
 
       const isValid = isValidFilter(
-        documentData,
+        status === "current" ? document.data : document.prevData,
         filter.key,
         filter.operator,
         filter.value,

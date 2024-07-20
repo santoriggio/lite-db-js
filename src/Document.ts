@@ -5,9 +5,11 @@ import { DocumentData } from "./types";
  * @template T
  */
 export default class Document<T extends DocumentData> {
+  private collectionPath: string;
   private uniqueId: string;
   private uniquePath: string;
   private documentData: T | undefined;
+  private prevDocumentData: T | undefined;
 
   /**
    * @param {DBInstance} db Database Instance
@@ -23,6 +25,7 @@ export default class Document<T extends DocumentData> {
   ) {
     this.uniqueId = id;
     this.uniquePath = `${collection}/${id}`;
+    this.collectionPath = collection;
 
     if (typeof data !== "undefined") {
       this.documentData = data;
@@ -34,10 +37,10 @@ export default class Document<T extends DocumentData> {
    * @param {T} data Document data
    */
   set(data: T) {
-    const prev = this.documentData;
-
+    this.prevDocumentData = this.documentData;
     this.documentData = data;
-    this.db.onEdit(prev, this);
+
+    this.db.onEdit(this);
   }
 
   /**
@@ -45,15 +48,14 @@ export default class Document<T extends DocumentData> {
    * @param {Partial<T>} data Document updated data
    */
   update(data: Partial<T>) {
-    const prev = this.documentData;
-
     if (typeof this.documentData !== "undefined") {
+      this.prevDocumentData = this.documentData;
       this.documentData = {
         ...this.documentData,
         ...data,
       };
 
-      this.db.onEdit(prev, this);
+      this.db.onEdit(this);
     }
 
     if (typeof this.documentData === "undefined") {
@@ -65,8 +67,7 @@ export default class Document<T extends DocumentData> {
    * Delete document
    */
   delete() {
-    const collectionPath = this.uniquePath.split("/").slice(0, -1)
-      .join("/");
+    const collectionPath = this.uniquePath.split("/").slice(0, -1).join("/");
 
     if (typeof this.db.collections[collectionPath] !== "undefined") {
       this.db.collections[collectionPath].deleteDoc(this);
@@ -101,7 +102,14 @@ export default class Document<T extends DocumentData> {
    * @returns {T} Return T
    */
   get data(): T {
-    return this.documentData as T;
+    return this.documentData;
+  }
+
+  /**
+   * @returns {T} Return prev document data
+   */
+  get prevData(): T {
+    return this.prevDocumentData;
   }
 
   /**
@@ -116,5 +124,12 @@ export default class Document<T extends DocumentData> {
    */
   get path(): string {
     return this.uniquePath;
+  }
+
+  /**
+   * @returns {string} Collection path
+   */
+  get collection(): string {
+    return this.collectionPath;
   }
 }

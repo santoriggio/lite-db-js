@@ -2,8 +2,8 @@ import Document from "./Document";
 import Collection from "./Collection";
 import generateUID from "./generateUID";
 import { DocumentData, CollListener } from "./types";
-
 /**
+
  * @template T
  */
 export default class DB {
@@ -172,22 +172,28 @@ export class DBInstance {
    * @param prevDocumentData
    * @param document
    */
-  onEdit(prevDocumentData: Document<any>["data"], document: Document<any>) {
-    this.listeners.forEach((listener) => {
-      const docs = listener.query.docs;
+  onEdit(document: Document<any>) {
+    const listeners = this.listeners;
 
-      const beforeIsValid = listener.query.isValidDoc(prevDocumentData);
-      const index = docs.findIndex((curr) => curr.id === document.id);
+    // PERF: Check if listeners.length === 0 to early return
+
+    // if (listeners.length === 0) return;
+
+    for (const listener of listeners) {
+      const docs = listener.query.docs;
+      const beforeIsValid = listener.query.isValidDoc(document, "prev");
+
+      const index = docs.findIndex((curr) => curr.path === document.path);
       if (index >= 0) {
         listener.func(listener.query);
       } else if (index === -1 && beforeIsValid) {
         listener.func(listener.query);
       }
-    });
+    }
 
     this.docListeners.forEach((listener) => {
       // @ts-ignore
-      if (listener.query.id === document.id) {
+      if (listener.query.path === document.path) {
         listener.func(listener.query);
       }
     });
@@ -210,8 +216,8 @@ export class DBInstance {
       }
 
       const docs = listener.query.docs;
-      const isValidDoc = listener.query.isValidDoc(document.data);
-      const index = docs.findIndex((curr) => curr.id === document.id);
+      const isValidDoc = listener.query.isValidDoc(document);
+      const index = docs.findIndex((curr) => curr.path === document.path);
 
       if (index === -1 && isValidDoc) {
         toCall = {
@@ -227,7 +233,7 @@ export class DBInstance {
 
     this.docListeners.forEach((listener) => {
       // @ts-ignore
-      if (listener.query.id === document.id) {
+      if (listener.query.path === document.path) {
         listener.func(listener.query);
       }
     });

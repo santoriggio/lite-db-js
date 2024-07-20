@@ -54,7 +54,7 @@ module.exports = [
       ],
       "multiline-comment-style": ["error", "starred-block"],
       "newline-before-return": "error",
-      "newline-per-chained-call": ["error", { ignoreChainWithDepth: 2 }],
+      // "newline-per-chained-call": ["error", { ignoreChainWithDepth: 2 }],
       "no-console": "warn",
       "no-else-return": "error",
       "no-multiple-empty-lines": ["error", { max: 1, maxEOF: 1 }],

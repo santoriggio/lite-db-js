@@ -13,6 +13,7 @@ const collection = db.collection<DocType>("test");
 beforeEach(() => {
   collection.clear();
 });
+
 describe("basic cases", () => {
   it("add item to collection", () => {
     const uniqueId = generateUID();
@@ -99,6 +100,53 @@ describe("basic cases", () => {
     listener.remove();
     collection.add({ id: generateUID(), title: "AAAA" });
     expect(callback).toHaveBeenCalledTimes(1);
+  });
+  it(".on should be called one time if array is added", () => {
+    const callback = jest.fn();
+    const listener = collection.on(callback);
+
+    collection.add([
+      { id: generateUID(), title: "BBB" },
+      { id: generateUID(), title: "CCC" },
+      { id: generateUID(), title: "DDD" },
+    ]);
+
+    expect(callback).toHaveBeenCalledTimes(2);
+
+    listener.remove();
+  });
+  it("2 listeners should work indipendently", () => {
+    const callback_one = jest.fn();
+    const callback_two = jest.fn();
+
+    const collection_one = db.collection("collection_one");
+    const collection_two = db.collection("collection_two");
+
+    const listener_one = collection_one.on(callback_one);
+    const listener_two = collection_two.on(callback_two);
+
+    collection_one.add({
+      id: generateUID(),
+      title: "One",
+    });
+
+    const uid = generateUID();
+    collection_two.add({
+      id: uid,
+      title: "Two",
+    });
+
+    const doc = collection_two.doc(uid);
+
+    doc.update({
+      title: "Two_updated",
+    });
+
+    expect(callback_one).toHaveBeenCalledTimes(2);
+    expect(callback_two).toHaveBeenCalledTimes(3);
+
+    listener_one.remove();
+    listener_two.remove();
   });
 });
 
