@@ -196,7 +196,16 @@ function isValidFilter(
   }
 
   if (operator === "has") {
-    if (typeof extracted === "string" || Array.isArray(extracted)) {
+    if (typeof extracted === "string") {
+      const lowerCaseExtracted = extracted.toLowerCase();
+      const lowerCaseValue = value.toLowerCase();
+
+      if (lowerCaseExtracted.includes(lowerCaseValue) === false) {
+        return false;
+      }
+    }
+
+    if (Array.isArray(extracted)) {
       if (extracted.includes(value) === false) {
         return false;
       }
@@ -210,7 +219,16 @@ function isValidFilter(
   }
 
   if (operator === "!has") {
-    if (typeof extracted === "string" || Array.isArray(extracted)) {
+    if (typeof extracted === "string") {
+      const lowerCaseExtracted = extracted.toLowerCase();
+      const lowerCaseValue = value.toLowerCase();
+
+      if (lowerCaseExtracted.includes(lowerCaseValue)) {
+        return false;
+      }
+    }
+
+    if (Array.isArray(extracted)) {
       if (extracted.includes(value)) {
         return false;
       }

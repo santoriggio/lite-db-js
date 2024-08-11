@@ -32,6 +32,9 @@ export default class DB {
    * @returns {Document<T>} Document Reference
    */
   doc<T extends DocumentData>(id: string): Document<T> {
+    if (typeof id !== "string") {
+      throw Error("id must be a string");
+    }
     const splitted = id
       .split("/")
       .filter(

@@ -30,6 +30,9 @@ export default class Collection<
    * @returns {Document<T>} Document
    */
   doc<E extends T>(id: string): Document<E | T> {
+    if (typeof id !== "string") {
+      throw Error("id must be a string");
+    }
     if (typeof this.hashmap[id] !== "undefined") {
       return this.hashmap[id];
     }

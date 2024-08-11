@@ -353,3 +353,27 @@ describe("orderBy method", () => {
     }
   });
 });
+
+describe("edge cases", () => {
+  it("add and retrieve number as id document", () => {
+    const id = 3150;
+
+    const createDoc = () => {
+      // @ts-ignore
+      collection.doc(id).set({ id, title: "aa" });
+    };
+
+    expect(createDoc).toThrow();
+  });
+  it("query should be searched by lowercase", () => {
+    const doc = collection.doc(generateUID());
+    doc.update({
+      title: "mario",
+    });
+
+    const query = collection.where("title", "has", "Mario");
+
+    expect(query.count).toBe(1);
+    expect(query.docs.length).toBe(1);
+  });
+});
